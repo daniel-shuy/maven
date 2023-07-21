@@ -85,7 +85,7 @@ class DefaultSettingsValidatorTest {
     }
 
     @Test
-    void testValidateMirror() throws Exception {
+    void testValidateSettingsMirror() throws Exception {
         Settings settings = new Settings();
         Mirror mirror = new Mirror();
         mirror.setId("local");
@@ -103,6 +103,32 @@ class DefaultSettingsValidatorTest {
         assertContains(problems.messages.get(1), "'mirrors.mirror.url' for local is missing");
         assertContains(problems.messages.get(2), "'mirrors.mirror.mirrorOf' for local is missing");
         assertContains(problems.messages.get(3), "'mirrors.mirror.id' must not contain any of these characters");
+    }
+
+    @Test
+    void testValidateProfileMirror() throws Exception {
+        Profile profile = new Profile();
+        Mirror mirror = new Mirror();
+        mirror.setId("local");
+        profile.addMirror(mirror);
+        mirror = new Mirror();
+        mirror.setId("illegal\\:/chars");
+        mirror.setUrl("http://void");
+        mirror.setMirrorOf("void");
+        profile.addMirror(mirror);
+        Settings settings = new Settings();
+        settings.addProfile(profile);
+
+        SimpleProblemCollector problems = new SimpleProblemCollector();
+        validator.validate(settings, problems);
+        assertEquals(4, problems.messages.size());
+        assertContains(problems.messages.get(0), "'profiles.profile[default].mirrors.mirror.id' must not be 'local'");
+        assertContains(problems.messages.get(1), "'profiles.profile[default].mirrors.mirror.url' for local is missing");
+        assertContains(
+                problems.messages.get(2), "'profiles.profile[default].mirrors.mirror.mirrorOf' for local is missing");
+        assertContains(
+                problems.messages.get(3),
+                "'profiles.profile[default].mirrors.mirror.id' must not contain any of these characters");
     }
 
     @Test

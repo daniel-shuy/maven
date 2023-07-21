@@ -146,6 +146,8 @@ class SettingsUtilsTest {
                 p.getActivation().getOs().getVersion(),
                 clone.getActivation().getOs().getVersion());
         assertEquals(p.getProperties(), clone.getProperties());
+        assertEquals(p.getMirrors().size(), clone.getMirrors().size());
+        // TODO deep compare the lists
         assertEquals(p.getRepositories().size(), clone.getRepositories().size());
         // TODO deep compare the lists
         assertEquals(

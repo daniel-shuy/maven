@@ -131,31 +131,7 @@ public class DefaultSettingsValidator implements SettingsValidator {
             }
         }
 
-        List<Mirror> mirrors = settings.getMirrors();
-
-        if (mirrors != null) {
-            for (Mirror mirror : mirrors) {
-                validateStringNotEmpty(problems, "mirrors.mirror.id", mirror.getId(), mirror.getUrl());
-
-                validateBannedCharacters(
-                        problems, "mirrors.mirror.id", Severity.WARNING, mirror.getId(), null, ILLEGAL_REPO_ID_CHARS);
-
-                if ("local".equals(mirror.getId())) {
-                    addViolation(
-                            problems,
-                            Severity.WARNING,
-                            "mirrors.mirror.id",
-                            null,
-                            "must not be 'local'"
-                                    + ", this identifier is reserved for the local repository"
-                                    + ", using it for other repositories will corrupt your repository metadata.");
-                }
-
-                validateStringNotEmpty(problems, "mirrors.mirror.url", mirror.getUrl(), mirror.getId());
-
-                validateStringNotEmpty(problems, "mirrors.mirror.mirrorOf", mirror.getMirrorOf(), mirror.getId());
-            }
-        }
+        validateMirrors(problems, settings.getMirrors(), "");
 
         List<Profile> profiles = settings.getProfiles();
 
@@ -174,6 +150,7 @@ public class DefaultSettingsValidator implements SettingsValidator {
 
                 String prefix = "profiles.profile[" + profile.getId() + "].";
 
+                validateMirrors(problems, profile.getMirrors(), prefix);
                 validateRepositories(problems, profile.getRepositories(), prefix + "repositories.repository");
                 validateRepositories(
                         problems, profile.getPluginRepositories(), prefix + "pluginRepositories.pluginRepository");
@@ -195,6 +172,38 @@ public class DefaultSettingsValidator implements SettingsValidator {
                             "must be unique but found duplicate proxy with id " + proxy.getId());
                 }
                 validateStringNotEmpty(problems, "proxies.proxy.host", proxy.getHost(), proxy.getId());
+            }
+        }
+    }
+
+    private void validateMirrors(SettingsProblemCollector problems, List<Mirror> mirrors, String prefix) {
+        if (mirrors != null) {
+            for (Mirror mirror : mirrors) {
+                validateStringNotEmpty(problems, prefix + "mirrors.mirror.id", mirror.getId(), mirror.getUrl());
+
+                validateBannedCharacters(
+                        problems,
+                        prefix + "mirrors.mirror.id",
+                        Severity.WARNING,
+                        mirror.getId(),
+                        null,
+                        ILLEGAL_REPO_ID_CHARS);
+
+                if ("local".equals(mirror.getId())) {
+                    addViolation(
+                            problems,
+                            Severity.WARNING,
+                            prefix + "mirrors.mirror.id",
+                            null,
+                            "must not be 'local'"
+                                    + ", this identifier is reserved for the local repository"
+                                    + ", using it for other repositories will corrupt your repository metadata.");
+                }
+
+                validateStringNotEmpty(problems, prefix + "mirrors.mirror.url", mirror.getUrl(), mirror.getId());
+
+                validateStringNotEmpty(
+                        problems, prefix + "mirrors.mirror.mirrorOf", mirror.getMirrorOf(), mirror.getId());
             }
         }
     }

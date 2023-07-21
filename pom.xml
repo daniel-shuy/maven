@@ -97,6 +97,9 @@ under the License.
     <contributor>
       <name>Arturo Bernal</name>
     </contributor>
+    <contributor>
+      <name>Daniel Shuy (MNG-3525)</name>
+    </contributor>
   </contributors>
 
   <modules>

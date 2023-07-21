@@ -207,6 +207,13 @@ public class DefaultMavenExecutionRequestPopulator implements MavenExecutionRequ
             request.addProfile(SettingsUtils.convertFromSettingsProfile(rawProfile));
 
             if (settings.getActiveProfiles().contains(rawProfile.getId())) {
+                List<Mirror> mirrors = rawProfile.getMirrors();
+                for (Mirror mirror : mirrors) {
+                    mirror = mirror.clone();
+
+                    request.addMirror(mirror);
+                }
+
                 List<Repository> remoteRepositories = rawProfile.getRepositories();
                 for (Repository remoteRepository : remoteRepositories) {
                     try {
